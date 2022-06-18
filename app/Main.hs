@@ -34,17 +34,6 @@ import Control.Monad.Writer
 import Control.Monad        (when)
 
 {----------------------------------------------------
-Constants
------------------------------------------------------}
-
-cNbRows     :: NbRows
-cNbRows     = 3           -- default nb of rows being proposed when asked for desired configuration
-cListSticks :: [Int]
-cListSticks = [9, 16, 13] -- default composition of rows being proposed when asked for desired configuration
-cSymbol     :: String
-cSymbol     = "!"         -- default character symbol being proposed when asked for desired configuration
-
-{----------------------------------------------------
 Data Model
 -----------------------------------------------------}
 
@@ -80,6 +69,17 @@ data Game = Game {
     , _player :: Player
     , _move   :: Move
     } deriving (Show)
+
+{----------------------------------------------------
+Constants
+-----------------------------------------------------}
+
+cNbRows     :: NbRows
+cNbRows     = 3           -- default nb of rows being proposed when asked for desired configuration
+cListSticks :: [Int]
+cListSticks = [9, 16, 13] -- default composition of rows being proposed when asked for desired configuration
+cSymbol     :: String
+cSymbol     = "!"         -- default character symbol being proposed when asked for desired configuration
 
 {----------------------------------------------------
 Pure Functions
@@ -252,23 +252,23 @@ initConfig = do
 
 -- Display board
 
-showHorizontalLine :: IO ()
-showHorizontalLine = putStrLn $ replicate 50 '-'
+displayHorizontalLine :: IO ()
+displayHorizontalLine = putStrLn $ replicate 50 '-'
 
-showRow :: (Row, StickSymbol) -> IO ()
-showRow ((r, m), s) = do
-    showHorizontalLine
+renderRow :: (Row, StickSymbol) -> IO ()
+renderRow ((r, m), s) = do
+    displayHorizontalLine
     putStr $ "| " ++ show r ++ " ==> "++ printf "%02d" m ++ " | "
     putStrLn $ intersperse ' ' (replicate m (head s))
 
-showBoard :: (MonadReader Config m, MonadState Game m, MonadIO m) => m ()
-showBoard = do
+renderBoard :: (MonadReader Config m, MonadState Game m, MonadIO m) => m ()
+renderBoard = do
     config <- ask
     game   <- get
 
     liftIO $ do
-        mapM_ showRow ((,) <$> _board game <*> [_symbol config])
-        showHorizontalLine
+        mapM_ renderRow ((,) <$> _board game <*> [_symbol config])
+        displayHorizontalLine
         putStrLn ""
 
 -- Capture user's move
@@ -290,12 +290,21 @@ notifyInvalidMove = putStrLn "\nInvalid input for move ! Please try again."
 notifyIncorrectMove :: IO ()
 notifyIncorrectMove = putStrLn "\nIncorrect move: move cannot be played in regard to the board game ! Please try again."
 
+notifyPlayerMove :: (MonadState Game m, MonadIO m) => Move -> m ()
+notifyPlayerMove move = do
+    game <- get
+    let
+        player = _player game
+        ro     = fst move
+        st     = snd move
+    liftIO $ putStrLn $ "\nPlayer " ++ show player ++ " removed " ++ show st ++ " stick(s) from row " ++ show ro
+
 notifyWinner :: (MonadState Game m, MonadIO m) => m ()
 notifyWinner = do
     game <- get
     liftIO $ putStrLn $ "\nCongratulations! Player " ++ show (_player game) ++ " - You won !!"
 
--- Play game and analyze move
+-- Play game and process move
 
 -- Main function of the program
 -- Use of ReaderT to read configuration stored in Config
@@ -307,7 +316,7 @@ playGame = do
     game   <- get
 
     -- Display game board
-    showBoard
+    renderBoard
 
     -- Who's turn? Computer or Player?
     computerPlays <- isComputerTurn
@@ -331,19 +340,20 @@ playGame = do
                         else do
                             -- Process player's move and continue if game is not over
                             continue <- processMove move
-                            Control.Monad.when continue playGame
+                            when continue playGame
         else do -- Computer's turn
             -- Process computer's move and continue if game is not over
             nextMove <- playNextMove
             continue <- processMove nextMove
-            Control.Monad.when continue playGame
+            when continue playGame
 
+-- Process move and return True if game is to be continued
 processMove :: (MonadState Game m, MonadWriter String m, MonadIO m) => Move -> m Bool
 processMove move = do
     game <- get
 
-    -- Describe move
-    describePlayerMove move
+    -- Notify move
+    notifyPlayerMove move
 
     -- Log initial state and current move
     logPlayerMove move
@@ -357,19 +367,10 @@ processMove move = do
     if gameOver
         then do
             notifyWinner
-            return False
+            return False -- Game is over
         else do
             switchPlayer
-            return True
-
-describePlayerMove :: (MonadState Game m, MonadIO m) => Move -> m ()
-describePlayerMove move = do
-    game <- get
-    let
-        player = _player game
-        ro     = fst move
-        st     = snd move
-    liftIO $ putStrLn $ "\nPlayer " ++ show player ++ " removed " ++ show st ++ " stick(s) from row " ++ show ro
+            return True  -- Game is to be continued
 
 logPlayerMove :: (MonadState Game m, MonadWriter String m) => Move -> m ()
 logPlayerMove move = do
