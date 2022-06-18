@@ -37,9 +37,9 @@ import Control.Monad        (when)
 Data Model
 -----------------------------------------------------}
 
-type NbRows      = Int    -- nb of rows
-type ListSticks  = [Int]  -- configuration of rows
-type StickSymbol = String -- character symbol representing a stick to be shown when displaying the game board
+type NbRows      = Int   -- nb of rows
+type ListSticks  = [Int] -- configuration of rows
+type StickSymbol = Char  -- character symbol representing a stick to be shown when displaying the game board
 
 data PlayMode    = COMPUTER | HUMAN deriving (Eq, Show)
 
@@ -75,11 +75,11 @@ Constants
 -----------------------------------------------------}
 
 cNbRows     :: NbRows
-cNbRows     = 3           -- default nb of rows being proposed when asked for desired configuration
-cListSticks :: [Int]
-cListSticks = [9, 16, 13] -- default composition of rows being proposed when asked for desired configuration
-cSymbol     :: String
-cSymbol     = "!"         -- default character symbol being proposed when asked for desired configuration
+cNbRows     = 3            -- default nb of rows being proposed when asked for desired configuration
+cListSticks :: ListSticks
+cListSticks = [9, 16, 13]  -- default composition of rows being proposed when asked for desired configuration
+cSymbol     :: StickSymbol
+cSymbol     = '!'          -- default character symbol being proposed when asked for desired configuration
 
 {----------------------------------------------------
 Pure Functions
@@ -210,12 +210,13 @@ selectListSticks = do
 -- Ask user to enter the stick symbol or to accept the default
 selectStickSymbol :: IO StickSymbol
 selectStickSymbol = do
-    putStrLn $ "Which symbol to use to show as a stick? Enter a single character or press [enter] for default ( = " ++ cSymbol ++ " )"
+    putStrLn $ "Which symbol to use to show as a stick? Enter a single character or press [enter] for default ( = " ++ [cSymbol] ++ " )"
     input <- getLine
     if input == ""
         then return cSymbol -- default value defined in constants section
+        -- else
         else if length input == 1
-            then return input
+            then return $ head input
             else selectStickSymbol
 
 -- Ask user to enter the play mode or to accept the default
@@ -259,7 +260,7 @@ renderRow :: (Row, StickSymbol) -> IO ()
 renderRow ((r, m), s) = do
     displayHorizontalLine
     putStr $ "| " ++ show r ++ " ==> "++ printf "%02d" m ++ " | "
-    putStrLn $ intersperse ' ' (replicate m (head s))
+    putStrLn $ intersperse ' ' (replicate m s)
 
 renderBoard :: (MonadReader Config m, MonadState Game m, MonadIO m) => m ()
 renderBoard = do
