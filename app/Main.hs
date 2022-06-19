@@ -24,15 +24,15 @@ Game configuration:
 Importing modules
 -----------------------------------------------------}
 
-import Data.List            (intersperse)
-import Data.Bits            (xor)
-import Text.Printf          (printf)
-import Text.Read            hiding (lift, get)
+import Data.List            ( intersperse )
+import Data.Bits            ( xor )
+import Text.Printf          ( printf )
+import Text.Read            hiding ( lift, get )
 import Control.Monad.Reader
 import Control.Monad.State
 import Control.Monad.Writer
-import Control.Monad        (when)
-import System.Console.ANSI
+import Control.Monad        ( when )
+import System.Console.ANSI  ( clearScreen )
 
 {----------------------------------------------------
 Data Model
