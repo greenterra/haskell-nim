@@ -32,6 +32,7 @@ import Control.Monad.Reader
 import Control.Monad.State
 import Control.Monad.Writer
 import Control.Monad        (when)
+import System.Console.ANSI
 
 {----------------------------------------------------
 Data Model
@@ -54,13 +55,13 @@ data Config = Config {          -- Game configuration
 
 ----------------------------------------------------
 
-type RowNo    = Int           -- row number
-type NbSticks = Int           -- quantity of sticks
+type RowNo    = Int               -- row number
+type NbSticks = Int               -- quantity of sticks
 
-type Row    = (RowNo, NbSticks) -- a row is a tuple (row number starting from 1, quantity of sticks left in that row)
-type Board  = [Row]             -- list of rows
-type Player = Int               -- current player : 1 or 2
-type Move   = (RowNo, NbSticks) -- a move is a tuple (row number, quantity of sticks to remove)
+type Row      = (RowNo, NbSticks) -- a row is a tuple (row number starting from 1, quantity of sticks left in that row)
+type Board    = [Row]             -- list of rows
+type Player   = Int               -- current player : 1 or 2
+type Move     = (RowNo, NbSticks) -- a move is a tuple (row number, quantity of sticks to remove)
 
 -- State Game
 
@@ -74,12 +75,14 @@ data Game = Game {
 Constants
 -----------------------------------------------------}
 
-cNbRows     :: NbRows
-cNbRows     = 3            -- default nb of rows being proposed when asked for desired configuration
+cNbRows :: NbRows
+cNbRows      = 3            -- default nb of rows being proposed when asked for desired configuration
 cListSticks :: ListSticks
-cListSticks = [9, 16, 13]  -- default composition of rows being proposed when asked for desired configuration
-cSymbol     :: StickSymbol
-cSymbol     = '!'          -- default character symbol being proposed when asked for desired configuration
+cListSticks  = [9, 16, 13]  -- default composition of rows being proposed when asked for desired configuration
+cSymbol :: StickSymbol
+cSymbol      = '!'          -- default character symbol being proposed when asked for desired configuration
+cHLineLength :: Int
+cHLineLength = 50           -- length of horizontal line separating rows when rendering game board
 
 {----------------------------------------------------
 Pure Functions
@@ -97,7 +100,7 @@ changeRow ((r,m), n) = (r, m-n)
 applyMove :: Game -> Game
 applyMove (Game (r:rs) p (1, n)) = Game {_board = changeRow (r, n) : rs                      , _player = p, _move = (1, n)}
 applyMove (Game (r:rs) p (i, n)) = Game {_board = r : _board (applyMove (Game rs p (i-1, n))), _player = p, _move = (i, n)}
-applyMove g                      = g
+applyMove g                      = g -- useless but for compliance with exhaustive pattern matching
 
 -- Try to convert user's input into a well-formed move
 parsePlayerMove :: String -> Maybe Move
@@ -122,17 +125,16 @@ isMoveValid move = do
 
 -- Check whether game is over (that is board is empty)
 isGameOver :: (MonadState Game m) => m Bool
-isGameOver =
-    gets (all ((== 0) . snd) . _board)
-    -- same as : all ((== 0) . snd) . _board <$> get
+isGameOver = gets (all ((== 0) . snd) . _board) -- same as : all ((== 0) . snd) . _board <$> get
 
+-- Initialize game state with board derived from configuration and player 1 plays first
 initGame :: Reader Config Game
 initGame = do
     config <- ask
     return $ Game {
           _board  = createBoard (_nbRows config, _listSticks config)
         , _player = 1
-        , _move   = (0,0)
+        , _move   = (0,0)                                            -- dummy setting for compliance with full data initialization
         }
 
 {----------------------------------------------------
@@ -254,7 +256,7 @@ initConfig = do
 -- Display board
 
 displayHorizontalLine :: IO ()
-displayHorizontalLine = putStrLn $ replicate 50 '-'
+displayHorizontalLine = putStrLn $ replicate cHLineLength '-'
 
 renderRow :: (Row, StickSymbol) -> IO ()
 renderRow ((r, m), s) = do
@@ -339,6 +341,8 @@ playGame = do
                             liftIO notifyIncorrectMove
                             playGame
                         else do
+                            -- Clear screen
+                            liftIO clearScreen
                             -- Process player's move and continue if game is not over
                             continue <- processMove move
                             when continue playGame
@@ -415,6 +419,9 @@ main = do
 
     -- Initialize game from configuration
     let game = runReader initGame config
+
+    -- Clear screen
+    clearScreen
 
     -- Play the game and collect history of player's moves
     (_, history) <- runWriterT (runStateT (runReaderT playGame config) game)
