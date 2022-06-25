@@ -48,3 +48,7 @@ dist-newstyle/packagedb/ghc-8.10.7/haskell-nim-0.1.0.0-inplace.conf
 dist-newstyle/packagedb/ghc-8.10.7/nim-0.1.0.0-inplace.conf
 dist-newstyle/packagedb/ghc-8.10.7/package.cache
 dist-newstyle/packagedb/ghc-8.10.7/package.cache.lock
+dist-newstyle/build/x86_64-linux/ghc-8.10.7/haskell-nim-0.1.0.0/x/haskell-nim/build/haskell-nim/haskell-nim-tmp/Configuration.hi
+dist-newstyle/build/x86_64-linux/ghc-8.10.7/haskell-nim-0.1.0.0/x/haskell-nim/build/haskell-nim/haskell-nim-tmp/Configuration.o
+dist-newstyle/build/x86_64-linux/ghc-8.10.7/haskell-nim-0.1.0.0/x/haskell-nim/build/haskell-nim/haskell-nim-tmp/Model.hi
+dist-newstyle/build/x86_64-linux/ghc-8.10.7/haskell-nim-0.1.0.0/x/haskell-nim/build/haskell-nim/haskell-nim-tmp/Model.o
