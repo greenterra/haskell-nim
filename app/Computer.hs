@@ -9,7 +9,6 @@ import Data.Bits            ( xor )
 -- local modules
 import Model
 
-
 {----------------------------------------------------
 Code
 -----------------------------------------------------}
@@ -30,7 +29,7 @@ guessWinnerBeforePlaying b
 -- If nimSum is not null, computer will make a move yielding the nimSum to zero
 -- If nimSum is null, computer will make an arbitrary move
 playNextMove :: Board -> Move
-playNextMove b =
+playNextMove b
     | nimSum b /= 0 = (fst targetRow, snd targetRow - targetSticks)
     | otherwise     = (fst maxSticks, if null canRemove then 1 else minimum canRemove)
     where

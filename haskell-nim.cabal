@@ -7,16 +7,16 @@ synopsis: Nim game
 
 -- A longer description of the package.
 description:
-Game rules:
-    - 2 players game
-    - Board is composed of N rows of M matchsticks (M variable for each row)
-    - Player could remove any number of matchsticks from a single row only
-    - Winner is the player who removes the last matchsticks
+    Game rules:
+        - 2 players game
+        - Board is composed of N rows of M matchsticks (M variable for each row)
+        - Player could remove any number of matchsticks from a single row only
+        - Winner is the player who removes the last matchsticks
 
-Game configuration:
-    - At start, it has been asked to define the desired configuration for the game although default settings are being proposed
-    - Settings: nb of rows (minimum is 3), composition of rows (nb of sticks for each row), character symbol to use for displaying a single stick on the game board
-    - An option has been added to allow playing against computer. In that case, computer will be Player 2.
+    Game configuration:
+        - At start, it has been asked to define the desired configuration for the game although default settings are being proposed
+        - Settings: nb of rows (minimum is 3), composition of rows (nb of sticks for each row), character symbol to use for displaying a single stick on the game board
+        - An option has been added to allow playing against computer. In that case, computer will be Player 2.
 
 -- A URL where users can report bugs.
 -- bug-reports:
