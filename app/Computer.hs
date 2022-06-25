@@ -1,4 +1,6 @@
-module Computer where
+module Computer (
+    playNextMove
+) where
 
 {----------------------------------------------------
 Importing modules

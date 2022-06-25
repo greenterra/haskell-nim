@@ -1,4 +1,6 @@
-module Configuration where
+module Configuration (
+    initConfig
+) where
 
 {----------------------------------------------------
 Importing modules

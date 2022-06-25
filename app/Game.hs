@@ -3,7 +3,10 @@ Language extensions
 -----------------------------------------------------}
 {-# LANGUAGE FlexibleContexts #-}
 
-module Game where
+module Game (
+      initGame
+    , playGame
+) where
 
 {----------------------------------------------------
 Importing modules
