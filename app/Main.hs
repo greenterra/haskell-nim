@@ -327,6 +327,8 @@ playGame = do
         then do -- Player's turn
             -- Get player's move from input
             mm <- getPlayerMove
+            -- Clear screen
+            liftIO clearScreen
             case mm of
                 Nothing -> do
                     -- Notify invalid input
@@ -341,8 +343,6 @@ playGame = do
                             liftIO notifyIncorrectMove
                             playGame
                         else do
-                            -- Clear screen
-                            liftIO clearScreen
                             -- Process player's move and continue if game is not over
                             continue <- processMove move
                             when continue playGame
@@ -410,7 +410,9 @@ Main
 
 main :: IO ()
 main = do
-    putStrLn "\n---------------------------------------------"
+    -- Clear screen
+    clearScreen
+    putStrLn "---------------------------------------------"
     putStrLn "------------ Welcome to NIM game ------------"
     putStrLn "---------------------------------------------\n"
 
